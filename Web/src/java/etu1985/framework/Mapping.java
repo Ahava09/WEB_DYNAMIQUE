@@ -19,6 +19,6 @@ public class Mapping{
     
     public Mapping (String classname,String method){
         this.setClassname(classname);
-        this.setMethod(methode);
+        this.setMethod(method);
     }
 }
