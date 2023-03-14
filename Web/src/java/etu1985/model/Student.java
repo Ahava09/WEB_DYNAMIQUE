@@ -17,5 +17,10 @@ public class Student {
         this.name = name;
     }
 
-    
+    public Student(String firstame,String name){
+        this.setFirstame(firstame);
+        this.setName(name);
+    }
+
+    @
 }
