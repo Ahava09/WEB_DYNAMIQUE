@@ -6,12 +6,14 @@
 package etu1985.framework.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
+import etu1985.framework.Mapping;
 
 
 /**
@@ -20,6 +22,8 @@ import jakarta.servlet.ServletConfig;
  */
 @WebServlet(name = "frontservlet_1")
 public class FrontServlet extends HttpServlet {
+    HashMap<String, Mapping> MappingUrls = new HashMap<String, Mapping>();
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
