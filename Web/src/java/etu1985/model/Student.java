@@ -22,5 +22,6 @@ public class Student {
         this.setName(name);
     }
 
-    @
+    @url()
+    
 }
