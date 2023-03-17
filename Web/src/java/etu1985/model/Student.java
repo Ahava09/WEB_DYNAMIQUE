@@ -1,4 +1,5 @@
 package etu1985.model;
+import etu1985.model.Url;
 
 public class Student {
     String firstame;
@@ -22,6 +23,10 @@ public class Student {
         this.setName(name);
     }
 
-    @url()
+    @Url(url="findAllEmp")
+    public Student findAll(){
+       Student student = new Student(getName(),getFirstame());
+        return student;
+    }
     
 }

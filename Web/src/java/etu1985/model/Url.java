@@ -1,7 +1,8 @@
-package ETU2035.framework.model;
+package etu1985.model;
 import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface GetUrl {
+
+public @interface Url {
     String url() default "";
 }
