@@ -95,7 +95,23 @@ public class FrontServlet extends HttpServlet {
 
     public void load (HttpServletRequest request,PrintWriter out){
         String nameServlet = this.getNameServlet(request, out);
-        for()
+        for (String cle : MappingUrls.keySet()) {
+            if (cle.equals(nameServlet)) {
+                Mapping mapping = MappingUrls.get(cle);
+                try {
+                    Class<?> classe = Class.forName(mapping.getClassname());
+                    Object instance = classe.newInstance();
+                    // Utiliser l'objet instance ici
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
     }
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)throws Exception {
