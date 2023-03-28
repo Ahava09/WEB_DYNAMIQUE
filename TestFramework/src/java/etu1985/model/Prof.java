@@ -1,5 +1,7 @@
 package etu1985.model;
 
+import etu1985.framework.Url;
+
 public class Prof {
     String name;
     String matiere;

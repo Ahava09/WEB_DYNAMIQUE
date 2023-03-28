@@ -1,4 +1,4 @@
-package etu1985.model;
+package etu1985.framework;
 import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

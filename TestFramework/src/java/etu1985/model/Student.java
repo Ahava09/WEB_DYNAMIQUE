@@ -1,5 +1,5 @@
 package etu1985.model;
-import etu1985.model.Url;
+import etu1985.framework.Url;
 
 public class Student {
     String firstame;
