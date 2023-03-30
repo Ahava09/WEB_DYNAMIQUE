@@ -47,6 +47,8 @@ public class FrontServlet extends HttpServlet {
         super.init(config);
         MappingUrls = new HashMap<>();
           try {
+             String rel = getServletContext().getRealPath("/Framework");
+             String dir = rel+"//TestFrameWork//src//java//etu1985//model";
             String directory ="C://S4_20_02_23//Mr_Naina_Web_Dynamique//WEB_DYNAMIQUE//TestFrameWork//src//java//etu1985//model";
             String [] classe = reset(directory);
             for(int i =0 ;i< classe.length; i++){
