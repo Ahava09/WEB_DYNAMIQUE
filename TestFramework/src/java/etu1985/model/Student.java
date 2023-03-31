@@ -23,7 +23,7 @@ public class Student {
         this.setName(name);
     }
 
-    @Url(url="findAllEmp")
+    @Url(url="findAllStudent")
     public Student findAll(){
        Student student = new Student(getName(),getFirstame());
         return student;

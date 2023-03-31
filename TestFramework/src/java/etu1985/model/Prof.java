@@ -23,7 +23,7 @@ public class Prof {
         this.setName(name);
         this.setMatiere(matiere);
     }
-    @Url(url="findAllDept")
+    @Url(url="findAllProf")
     public Prof findAll(){
         Prof prof = new Prof(getName(),getMatiere());
         return prof;
