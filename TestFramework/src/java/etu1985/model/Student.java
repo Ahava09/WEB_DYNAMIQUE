@@ -1,6 +1,7 @@
 package etu1985.model;
-import etu1985.model.Url;
-
+import etu1985.framework.Url;
+import etu1985.framework.servlet.ModelView;
+// url=student
 public class Student {
     String firstame;
     String name;
@@ -24,9 +25,13 @@ public class Student {
     }
 
     @Url(url="findAllStudent")
-    public ModelView findAll(){
-       ModelView view =new ModelView("ViewSudent.php")
-        return view;
+    public ModelView findAllS(){
+        ModelView mv = new ModelView("/page/all.jsp");
+        return  mv;
     }
+
+    public Student() {
+    }
+    
     
 }

@@ -1,5 +1,7 @@
 package etu1985.model;
 
+import etu1985.framework.Url;
+
 public class Prof {
     String name;
     String matiere;
@@ -22,8 +24,7 @@ public class Prof {
         this.setMatiere(matiere);
     }
     @Url(url="findAllProf")
-    public Prof findAll(){
-        Prof prof = new Prof(getName(),getMatiere());
-        return prof;
+    public String findAll(){
+        return "./page/all";
     }
 }
