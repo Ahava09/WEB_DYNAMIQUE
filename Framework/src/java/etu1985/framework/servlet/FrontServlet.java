@@ -7,7 +7,6 @@
 package etu1985.framework.servlet;
 
 import etu1985.framework.Mapping;
-
 import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -32,6 +31,8 @@ import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
 import jakarta.servlet.ServletConfig;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 
 
@@ -43,14 +44,16 @@ import jakarta.servlet.ServletConfig;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> MappingUrls = new HashMap<String, Mapping>();
+    
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         MappingUrls = new HashMap<>();
           try {
-             String rel = getServletContext().getRealPath("/Framework");
-             String dir = rel+"//TestFrameWork//src//java//etu1985//model";
+            String rel = getServletContext().getRealPath("/Framework");
+            String dir = rel+"//TestFrameWork//src//java//etu1985//model";
             String directory ="C://S4_20_02_23//Mr_Naina_Web_Dynamique//WEB_DYNAMIQUE//TestFrameWork//src//java//etu1985//model";
             String [] classe = reset(directory);
+//            String nameServlet = getNameServlet(request);
             for(int i =0 ;i< classe.length; i++){
                  String className = classe[i];
                 String name = classe[i];
@@ -61,8 +64,8 @@ public class FrontServlet extends HttpServlet {
                 for (Method method : methods) {
                      Annotation[] an = method.getAnnotations();
                      if(an.length!=0){
-                         Url annotation = method.getAnnotation(Url.class);
-                         MappingUrls.put(annotation.url(),new Mapping(name,method.getName()));
+                        Url annotation = method.getAnnotation(Url.class);
+                        MappingUrls.put(annotation.url(),new Mapping(name,method.getName()));
                      }
                 }
             }
@@ -86,45 +89,68 @@ public class FrontServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        out.println("Nombre de method avec @Url " + MappingUrls.size());
-    // rest of the code
+        out.println("Nombre de method avec @Url " + MappingUrls.size() +"----");
     }
 @Override
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-      
-      try {
-          processRequest(request, response);
-      } catch (Exception ex) {
-          Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
-      }
-     
-}
-@Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
     
-      try {
-          processRequest(request, response);
-      } catch (Exception ex) {
-          Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
-      }
-     
-}
-
-    
-    private String getNameServlet(HttpServletRequest request,PrintWriter out){
-        String uri = request.getRequestURI();
-        String context = request.getContextPath();
-        String[] uriParts = uri.split(context);
-        out.print("uri:  "+uri);
-        if (uriParts.length > 1) {
-            return uriParts[1];
-        } else {
-            return "";
+    try {
+        PrintWriter out = response.getWriter();
+//        out.println(MappingUrls.toString());
+        
+        String [] url=getUrlArray(request);
+        Mapping mapping=MappingUrls.get(url[0]);
+        if(mapping!=null){
+            loadView(url[0], request, response);
+        } else{
+            processRequest(request, response);
         }
+        out.println(request.getParameterMap().keySet());
+        out.close();
+    } catch (Exception ex) {
+          Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
+      }
+     
+}
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+          try {
+              processRequest(request, response);
+          } catch (Exception ex) {
+              Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
+          }
 
     }
 
+    
+    private String[ ] getUrlArray(HttpServletRequest request){
+        return request.getRequestURI().substring(request.getContextPath().length()+1).split("/");
+    }
+    
+    private ModelView getUrlDispatcher (String key) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+        Mapping mapping=MappingUrls.get(key);
+        ModelView m = null;
+        if(mapping!=null){
+//            out.println(mapping.getMethod());
+//            out.println(mapping.getClassname());
+            String className = "etu1985.model." +mapping.getClassname();
+            Class clazz;
+            clazz = Class.forName(className);
+            m = (ModelView)clazz.getDeclaredMethod(mapping.getMethod(),null).invoke(clazz.getConstructor(null).newInstance(),null);
+//            out.println(m.getNameview());
+//            RequestDispatcher dispat = request.getRequestDispatcher(m.getNameview());
+//            dispat.forward(request,response);
+            
+        } 
+        return m;
+    }
+    
+    private void loadView(String key,HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, NoSuchMethodException, InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException{
+        ModelView view = getUrlDispatcher(key);
+        RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
+            dispat.forward(request,response);
+    }
 }
- 

@@ -24,8 +24,7 @@ public class Prof {
         this.setMatiere(matiere);
     }
     @Url(url="findAllProf")
-    public Prof findAll(){
-        Prof prof = new Prof(getName(),getMatiere());
-        return prof;
+    public String findAll(){
+        return "./page/all";
     }
 }
