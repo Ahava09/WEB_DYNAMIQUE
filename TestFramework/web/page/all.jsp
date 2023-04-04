@@ -12,6 +12,6 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Prof!</h1>
+        <h1>Bienvenue dans la page .jsp Student</h1>
     </body>
 </html>
