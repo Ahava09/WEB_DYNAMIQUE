@@ -26,6 +26,7 @@ public class Student {
 
     @Url(url="findAllStudent")
     public ModelView findAllS(){
+        Object value = {1,2,3,9};
         ModelView mv = new ModelView("/page/all.jsp");
         return  mv;
     }

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package etu1985.framework.servlet;
+import java.util.HashMap;
 
 /**
  *
@@ -11,6 +12,7 @@ package etu1985.framework.servlet;
  */
 public class ModelView {
     String nameview;
+    HashMap<String,Object> data = new HashMap<String, Object>();;
 
     public String getNameview() {
         return nameview;
@@ -20,6 +22,14 @@ public class ModelView {
         this.nameview = nameview;
     }
 
+    public HashMap getData() {
+        return data;
+    }
+
+    public void setData(HashMap data) {
+        this.data = data;
+    }
+
     public ModelView() {
     }
 
@@ -27,5 +37,8 @@ public class ModelView {
         this.nameview = nameview;
     }
     
+    public void addItem(String key,Object value){
+        data.put(key,value);
+    }
     
 }
