@@ -1,4 +1,6 @@
 package etu1985.model;
+import java.util.HashMap;
+
 import etu1985.framework.Url;
 import etu1985.framework.servlet.ModelView;
 // url=student
@@ -26,8 +28,10 @@ public class Student {
 
     @Url(url="findAllStudent")
     public ModelView findAllS(){
-        Object value = {1,2,3,9};
+        Object[] value = new Object[]{1,2,3,9};
+        Object v = value;
         ModelView mv = new ModelView("/page/all.jsp");
+        mv.addItem("value", v);
         return  mv;
     }
 

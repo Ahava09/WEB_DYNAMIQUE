@@ -22,11 +22,11 @@ public class ModelView {
         this.nameview = nameview;
     }
 
-    public HashMap getData() {
+    public HashMap<String,Object> getData() {
         return data;
     }
 
-    public void setData(HashMap data) {
+    public void setData(HashMap<String,Object> data) {
         this.data = data;
     }
 
@@ -38,7 +38,7 @@ public class ModelView {
     }
     
     public void addItem(String key,Object value){
-        data.put(key,value);
+        this.getData().put(key,value);
     }
     
 }

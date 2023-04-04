@@ -140,10 +140,6 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
             Class clazz;
             clazz = Class.forName(className);
             m = (ModelView)clazz.getDeclaredMethod(mapping.getMethod(),null).invoke(clazz.getConstructor(null).newInstance(),null);
-//            out.println(m.getNameview());
-//            RequestDispatcher dispat = request.getRequestDispatcher(m.getNameview());
-//            dispat.forward(request,response);
-            
         } 
         return m;
     }
@@ -153,4 +149,6 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
         RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
             dispat.forward(request,response);
     }
+
+    private
 }
