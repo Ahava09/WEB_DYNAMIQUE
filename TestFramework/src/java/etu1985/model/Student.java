@@ -24,10 +24,18 @@ public class Student {
         this.setName(name);
     }
 
+    public Student() {
+    }
+    
+    
+
     @Url(url="findAllStudent")
     public ModelView findAll(){
-       ModelView mv = new ModelView("page/all");
-        return mv;
+       Object[] all = new Object[]{"1","Mino",6,0.2}; 
+       
+       ModelView mv = new ModelView("/page/all.jsp");
+       mv.addItem("list",all);
+       return  mv;
     }
     
 }

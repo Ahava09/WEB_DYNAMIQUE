@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% Object[] ob = (Object[])request.getAttribute("list");%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,5 +14,9 @@
     </head>
     <body>
         <h1>Prof!</h1>
+        
+        <% for(Object o : ob){%>
+        <label> <%= o.toString() %> </label>
+        <% } %>
     </body>
 </html>

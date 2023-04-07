@@ -33,6 +33,7 @@ import etu1985.framework.Url;
 import jakarta.servlet.ServletConfig;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 
 
@@ -145,9 +146,20 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
     }
     
     private void loadView(String key,HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, NoSuchMethodException, InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException{
-        ModelView view = getUrlDispatcher(key);
-        RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
-            dispat.forward(request,response);
+        try{
+            ModelView view = getUrlDispatcher(key);
+            if(view.getData().size() != 0){
+                for (Map.Entry<String, Object> entry : view.getData().entrySet()) {
+                    String key1 = entry.getKey();
+                    Object value = entry.getValue();
+                    request.setAttribute(key1, value);
+                }
+            }
+            RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
+            dispat.forward(request,response);            
+        }catch(Exception e){
+            e.printStackTrace( response.getWriter() );
+        }
     }
 
 }
