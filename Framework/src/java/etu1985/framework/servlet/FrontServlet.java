@@ -150,5 +150,4 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
             dispat.forward(request,response);
     }
 
-    private
 }
