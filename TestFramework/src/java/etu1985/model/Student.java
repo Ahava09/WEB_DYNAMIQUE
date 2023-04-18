@@ -1,5 +1,6 @@
 package etu1985.model;
 import etu1985.framework.Url;
+import etu1985.framework.servlet.ModelView;
 
 public class Student {
     String firstame;
@@ -23,10 +24,18 @@ public class Student {
         this.setName(name);
     }
 
+    public Student() {
+    }
+    
+    
+
     @Url(url="findAllStudent")
-    public Student findAll(){
-       Student student = new Student(getName(),getFirstame());
-        return student;
+    public ModelView findAll(){
+       Object[] all = new Object[]{"1","Mino",6,0.2}; 
+       
+       ModelView mv = new ModelView("/page/all.jsp");
+       mv.addItem("list",all);
+       return  mv;
     }
     
 }
