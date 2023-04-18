@@ -3,5 +3,10 @@
 /TestFramework/nbproject/private/
 /TestFramework/build/
 /Framework/build/
+<<<<<<< Updated upstream
 /Framework/dist/
 /Framework/Front/nbproject/private/
+=======
+/nbproject/private/
+/Framework/dist/
+>>>>>>> Stashed changes

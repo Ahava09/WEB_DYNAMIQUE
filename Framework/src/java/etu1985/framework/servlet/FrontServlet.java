@@ -66,12 +66,6 @@ public class FrontServlet extends HttpServlet {
                      if(an.length!=0){
                         Url annotation = method.getAnnotation(Url.class);
                         MappingUrls.put(annotation.url(),new Mapping(name,method.getName()));
-                           
-//                       if(nameServlet.equalsIgnoreCase(annotation.url())){
-//                            Constructor c = clazz.getConstructor();
-//                            Object ob = c.newInstance();
-//                            url = String.valueOf(method.invoke(ob)); 
-//                        }
                      }
                 }
             }
@@ -95,7 +89,7 @@ public class FrontServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        out.println("Nombre de method avec @Url " + MappingUrls.get("findAllStudent")+"----");
+        out.println("Nombre de method avec @Url " + MappingUrls.size() +"----");
     }
 @Override
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -103,7 +97,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
     
     try {
         PrintWriter out = response.getWriter();
-        out.println(MappingUrls.toString());
+//        out.println(MappingUrls.toString());
         
         String [] url=getUrlArray(request);
         Mapping mapping=MappingUrls.get(url[0]);
