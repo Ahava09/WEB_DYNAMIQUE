@@ -52,7 +52,7 @@ public class FrontServlet extends HttpServlet {
           try {
             String rel = getServletContext().getRealPath("/Framework");
             String dir = rel+"//TestFrameWork//src//java//etu1985//model";
-            String directory ="C://S4_20_02_23//Mr_Naina_Web_Dynamique//WEB_DYNAMIQUE//TestFrameWork//src//java//etu1985//model";
+            String directory ="C://S4_20_02_23//Mr_Naina_Web_Dynamique//WEB_DYNAMIQUE//TestFramework//src//java//etu1985//model";
             String [] classe = reset(directory);
 //            String nameServlet = getNameServlet(request);
             for(int i =0 ;i< classe.length; i++){
