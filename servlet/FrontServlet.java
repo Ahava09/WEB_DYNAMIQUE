@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import com.google.gson.Gson;
 import javax.management.relation.RoleResult;
-
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
+import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
 import java.lang.reflect.Array;
@@ -59,6 +59,7 @@ import jakarta.servlet.http.Part;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> MappingUrls = new HashMap<String, Mapping>();
+    HashMap<String, Object> Singleton = new HashMap<String, Object>();
 
     @SuppressWarnings("Unchecked")
     public void init(ServletConfig config) throws ServletException {
@@ -73,6 +74,10 @@ public class FrontServlet extends HttpServlet {
                 className = "etu1985.model." + className;
                 Class<?> clazz;
                 clazz = Class.forName(className);
+                if (clazz.isAnnotationPresent(IsSingleton.class)) {
+                    Object ci = clazz.getConstructor().newInstance();
+                    Singleton.put(clazz.getName(), ci);
+                }
                 Method[] methods = clazz.getDeclaredMethods();
                 for (Method method : methods) {
                     Annotation[] an = method.getAnnotations();
@@ -85,6 +90,7 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception ex) {
             throw new ServletException(ex);
         }
+
     }
 
     public String[] reset(String Directory) {
@@ -117,7 +123,6 @@ public class FrontServlet extends HttpServlet {
             out.println(MappingUrls.size());
             out.close();
         } catch (Exception ex) {
-            // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
             throw new ServletException(ex);
         }
     }
@@ -132,7 +137,6 @@ public class FrontServlet extends HttpServlet {
             ex.printStackTrace(out);
             out.println(ex);
             throw new ServletException(ex);
-            // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -159,8 +163,6 @@ public class FrontServlet extends HttpServlet {
         Mapping mapping = getMappingUrls(key);
         ModelView m = null;
         if (mapping != null) {
-            // out.println(mapping.getMethod());
-            // out.println(mapping.getClassname());
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz;
             clazz = Class.forName(className);
@@ -232,11 +234,8 @@ public class FrontServlet extends HttpServlet {
     private Part hasFileInput(HttpServletRequest request, String name) throws IOException, ServletException {
         try {
             for (Part part : request.getParts()) {
-                // if (part != null && part.getContentType() != null &&
-                // part.getContentType().startsWith("multipart/form-data")) {
                 if (part.getName().equalsIgnoreCase(name))
-                    return part; // L'input est de type file
-                // }
+                    return part;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -248,6 +247,11 @@ public class FrontServlet extends HttpServlet {
     private Mapping getMappingUrls(String key) {
         Mapping mapping = MappingUrls.get(key);
         return mapping;
+    }
+
+    private Object getObject(String key) {
+        Object ob = Singleton.get(key);
+        return ob;
     }
 
     private Class getClasse(Mapping mapping) throws ClassNotFoundException {
@@ -265,7 +269,10 @@ public class FrontServlet extends HttpServlet {
             Mapping mapping = getMappingUrls(key);
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz = getClasse(mapping);
-            Object ci = clazz.getConstructor().newInstance();
+            Object ci = getObject(key);
+            if (ci == null) {
+                ci = clazz.getConstructor().newInstance();
+            }
             Method[] methods = clazz.getDeclaredMethods();
             Method methode = null;
             for (Method method : methods) {
@@ -336,7 +343,6 @@ public class FrontServlet extends HttpServlet {
                                                                       // de chaînes séparées par des "="
                     String pName = paramTokens[0]; // Le premier élément est le nom du paramètre
                     String pValue = paramTokens[1]; // Le deuxième élément est la valeur du paramètre
-                    out.println(pName + " ------------ " + pValue);
                     // Utiliser le nom et la valeur du paramètre ici
 
                     for (int i = 0; i < parameters.length; i++) {
@@ -372,11 +378,17 @@ public class FrontServlet extends HttpServlet {
                 } else {
                     ci = clazz.getDeclaredMethod(methode.getName(), parameterTypes).invoke(ci, paramValues);
                 }
+                ((ModelView) ci).SetIsJson(true);
+                out.println("--------->" + ((ModelView) ci).GetIsJson());
+                if (((ModelView) ci).GetIsJson()) {
+                    out.println("iooooooooooooooooooooooooo");
+                    String json = new Gson().toJson(((ModelView) ci).getData());
+                    out.println(json + " etoooooooooooo");
+                }
                 loadView((ModelView) ci, request, response);
             }
         } catch (Exception e) {
             e.printStackTrace(out);
         }
     }
-    
 }
