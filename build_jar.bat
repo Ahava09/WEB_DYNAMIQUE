@@ -1,0 +1,1 @@
+javac -cp .\temp\WEB-INF\lib\fw.jar .\commons-io-2.7.jar -parameters -d .\temp\WEB-INF\classes .\temp\src\*.java
