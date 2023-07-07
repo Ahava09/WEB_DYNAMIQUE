@@ -2,6 +2,7 @@ package etu1985.model;
 
 import etu1985.framework.IsSingleton;
 import etu1985.framework.Url;
+import etu1985.framework.Auth;
 import etu1985.framework.servlet.ModelView;
 import etu1985.framework.servlet.UploadFile;
 
@@ -65,15 +66,17 @@ public class Student {
 
     public Student() {
     }
-
     @Url(url = "findAllStudent")
     public ModelView findAll() {
         Object[] all = new Object[]{"1", "Mino", 6, 0.2};
         ModelView mv = new ModelView("/page/all.jsp");
         mv.addItem("list", all);
+        mv.addSession("isConnected", true);
+        mv.addSession("profil", "DG");
         return mv;
     }
 
+    @Auth(value = "DG" )
     @Url(url = "saveStudent")
     public ModelView save() {
         ModelView view = new ModelView("/page/input.jsp");

@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.management.relation.RoleResult;
-
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
+import etu1985.framework.Auth;
 import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
@@ -65,9 +63,9 @@ public class FrontServlet extends HttpServlet {
     @SuppressWarnings("Unchecked")
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        MappingUrls = new HashMap<>();
+        MappingUrls = new HashMap<String, Mapping>();
         try {
-            String directory = getServletContext().getRealPath("\\WEB-INF\\classes\\etu1985\\model");
+            String directory = getServletContext().getRealPath("\\WEB-INF\\classes");
             String[] classe = reset(directory);
             for (int i = 0; i < classe.length; i++) {
                 String className = classe[i];
@@ -186,6 +184,13 @@ public class FrontServlet extends HttpServlet {
                         request.setAttribute(key1, value);
                     }
                 }
+                if (view.getSession().size() !=0){
+                    for (Map.Entry<String, Object> session : view.getSession().entrySet()) {
+                        String key = session.getKey();
+                        Object vl = session.getValue();
+                        request.getSession().setAttribute(key, vl);
+                    }
+                }
                 RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
                 dispat.forward(request, response);
             } else {
@@ -243,6 +248,20 @@ public class FrontServlet extends HttpServlet {
         }
 
         return null; // L'input n'est pas de type file
+    }
+
+    private void authentification(HttpServletRequest request,Method method) throws Exception, ServletException {
+        
+        if(method.isAnnotationPresent(Auth.class)){
+            HttpSession session = request.getSession();
+            Object value = session.getAttribute(this.getServletConfig().getInitParameter("sessionConnected"));
+            if ( value == null) throw new Exception("Non connectee");
+            String profil = (String)session.getAttribute(this.getServletConfig().getInitParameter("sessionProfil"));
+            if(method.getAnnotation(Auth.class).value() != null){
+                String prl = method.getAnnotation(Auth.class).value();
+                if(!profil.equals(prl) && profil == null) throw new Exception("Profil non reconnu");
+            }
+        }
     }
 
     private Mapping getMappingUrls(String key) {
@@ -372,6 +391,7 @@ public class FrontServlet extends HttpServlet {
                     }
                 }
             }
+            authentification(request,methode);
             if (methode.getReturnType() == ModelView.class) {
                 if (paramCount == 0) {
                     ci = clazz.getDeclaredMethod(methode.getName()).invoke(ci, (Object[]) null);
