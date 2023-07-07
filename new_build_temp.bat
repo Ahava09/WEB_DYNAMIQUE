@@ -14,6 +14,7 @@ cd ../../
 :: Compilation du modele
 copy .\lib.jar .\temp\WEB-INF\lib
 copy .\commons-io-2.7.jar .\temp\WEB-INF\lib
+copy .\gson-2.8.6.jar .\temp\WEB-INF\lib
 for /r .\model\ %f in (*.java) do copy "%f" .\temp\src\%~nxf
 javac -source 17 -cp .\temp\WEB-INF\lib\lib.jar -parameters -d .\temp\WEB-INF\classes .\temp\src\*.java
 rmdir /S /Q .\temp\src

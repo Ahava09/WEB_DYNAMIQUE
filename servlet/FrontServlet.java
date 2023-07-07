@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.google.gson.Gson;
+import javax.management.relation.RoleResult;
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,7 +31,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
-import etu1985.framework.Auth;
 import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
@@ -89,7 +90,7 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception ex) {
             throw new ServletException(ex);
         }
-            
+
     }
 
     public String[] reset(String Directory) {
@@ -115,11 +116,13 @@ public class FrontServlet extends HttpServlet {
             String directory = getServletContext().getRealPath("\\WEB-INF\\classes\\etu1985\\model");
 
             String[] classe = reset(directory);
+            out.println(classe.length);
             if (mapping != null) {
                 getDataNameView(url, request, response);
             }
+            out.println(MappingUrls.size());
+            out.close();
         } catch (Exception ex) {
-            // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
             throw new ServletException(ex);
         }
     }
@@ -131,10 +134,9 @@ public class FrontServlet extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(out);
             out.println(ex);
             throw new ServletException(ex);
-            // throw new ServletException(ex);
         }
     }
 
@@ -146,7 +148,7 @@ public class FrontServlet extends HttpServlet {
             processRequest(request, response);
         } catch (Exception ex) {
             // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace();
+            ex.printStackTrace(out);
             out.println(ex);
             throw new ServletException(ex);
         }
@@ -182,11 +184,6 @@ public class FrontServlet extends HttpServlet {
                         Object value = entry.getValue();
                         request.setAttribute(key1, value);
                     }
-                    for (Map.Entry<String, Object> session : view.getSession().entrySet()) {
-                        String key = session.getKey();
-                        Object vl = session.getValue();
-                        request.getSession().setAttribute(key, vl);
-                    }
                 }
                 RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
                 dispat.forward(request, response);
@@ -194,23 +191,9 @@ public class FrontServlet extends HttpServlet {
                 processRequest(request, response);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(out);
             out.println(e);
             // e.printStackTrace(response.getWriter());
-        }
-    }
-
-    private void authentification(HttpServletRequest request,Method method) throws Exception, ServletException {
-        
-        if(method.isAnnotationPresent(Auth.class)){
-            HttpSession session = request.getSession();
-            Object value = session.getAttribute(this.getServletConfig().getInitParameter("sessionConnected"));
-            if ( value == null) throw new Exception("Non connectee");
-            String profil = (String)session.getAttribute(this.getServletConfig().getInitParameter("sessionProfil"));
-            if(method.getAnnotation(Auth.class).admin() != null){
-                String prl = method.getAnnotation(Auth.class).admin();
-                if(!profil.equals(prl) && profil == null) throw new Exception("Profil non reconnu");
-            }
         }
     }
 
@@ -270,34 +253,6 @@ public class FrontServlet extends HttpServlet {
         Object ob = Singleton.get(key);
         return ob;
     }
-    
-    private void resetModel(Object object) throws Exception {
-        Field[] fields = object.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            String setterMethodName = "set" + capitalize(fieldName);
-            Method setterMethod = object.getClass().getDeclaredMethod(setterMethodName, field.getType());
-    
-            if (field.getType().isPrimitive()) {
-                // Gérer les types primitifs
-                if (field.getType() == int.class) {
-                    setterMethod.invoke(object, 0);
-                } else if (field.getType() == double.class) {
-                    setterMethod.invoke(object, 0.0);
-                } else if (field.getType() == boolean.class) {
-                    setterMethod.invoke(object, false);
-                } else if (field.getType() == UploadFile.class) {
-                    setterMethod.invoke(object, (UploadFile)null);
-                } else {
-                    setterMethod.invoke(object, (String)null);
-                }
-            } else {
-                // Gérer les types non primitifs
-                setterMethod.invoke(object, (Object) null);
-            }
-        }
-    }
-    
 
     private Class getClasse(Mapping mapping) throws ClassNotFoundException {
         String className = "etu1985.model." + mapping.getClassname();
@@ -315,20 +270,18 @@ public class FrontServlet extends HttpServlet {
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz = getClasse(mapping);
             Object ci = getObject(key);
-            if(ci == null){
+            if (ci == null) {
                 ci = clazz.getConstructor().newInstance();
-            }else{
-                resetModel(ci);
             }
             Method[] methods = clazz.getDeclaredMethods();
             Method methode = null;
             for (Method method : methods) {
+                out.println(method.getName());
                 if (method.getName().equals(mapping.getMethod())) {
                     methode = method;
                     break;
                 }
             }
-            authentification(request,methode);
             // Obtention des types de paramètres de la méthode
             Class<?>[] parameterTypes = methode.getParameterTypes();
             // Obtenez les noms des paramètres en itérant sur les types de paramètres
@@ -351,6 +304,7 @@ public class FrontServlet extends HttpServlet {
                 }
             } catch (Exception e) {
                 e.printStackTrace(out);
+                e.printStackTrace();
             }
             if (paramCount == 0) {
 
@@ -360,6 +314,7 @@ public class FrontServlet extends HttpServlet {
                     String paramValue = request.getParameter(value);
                     String nameM = "set" + paramName;
                     for (Method method : methods) {
+                        out.println(method.getName());
 
                         if (method.getName().equals(nameM)) {
                             if (Arrays.toString(method.getParameterTypes()).contains("String")) {
@@ -393,6 +348,8 @@ public class FrontServlet extends HttpServlet {
                     for (int i = 0; i < parameters.length; i++) {
                         String parameterName = parameters[i].getName();
                         Class<?> parameterType = parameterTypes[i];
+
+                        out.println(parameterName + " " + pName);
                         if (parameterName.equalsIgnoreCase(pName)) {
                             if (parameterType == String.class) {
                                 paramValues[i] = pValue;
@@ -409,6 +366,8 @@ public class FrontServlet extends HttpServlet {
                         }
                         if (i == parameters.length - 1) {
                             paramValues[i] = null;
+                            out.println("Param " + i + " name: " + parameterName);
+                            out.println("Param " + i + " type: " + parameterType.getSimpleName());
                         }
                     }
                 }
@@ -419,11 +378,17 @@ public class FrontServlet extends HttpServlet {
                 } else {
                     ci = clazz.getDeclaredMethod(methode.getName(), parameterTypes).invoke(ci, paramValues);
                 }
+                ((ModelView) ci).SetIsJson(true);
+                out.println("--------->" + ((ModelView) ci).GetIsJson());
+                if (((ModelView) ci).GetIsJson()) {
+                    out.println("iooooooooooooooooooooooooo");
+                    String json = new Gson().toJson(((ModelView) ci).getData());
+                    out.println(json + " etoooooooooooo");
+                }
                 loadView((ModelView) ci, request, response);
             }
         } catch (Exception e) {
             e.printStackTrace(out);
         }
     }
-
 }

@@ -4,5 +4,5 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 
 public @interface Auth {
-    String admin() default "";
+    String value() default "";
 }

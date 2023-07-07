@@ -5,9 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
-<%@ page import ="etu1985.model.Student"%>
-<% Student   ob = (Student)request.getAttribute("object");%>
+<% Object ob = (Object)request.getAttribute("object");%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -15,9 +13,9 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <label> <%= ob.getFirstName() %> </label></br>
-        <label> <%= ob.getId() %> </label></br>
-        <label> <%= ob.getMyfile().getFileName() %> </label></br>
+        <label> <%= o.getFirstname() %> </label></br>
+        <label> <%= o.getId() %> </label></br>
+        <label> <%= o.getMyfile().getName() %> </label></br>
 
     </body>
 </html>
