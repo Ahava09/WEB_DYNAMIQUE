@@ -1,5 +1,6 @@
-package ETU2035.framework.server;
+package etu1985.framework;
 import java.lang.annotation.*;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface RestApi {

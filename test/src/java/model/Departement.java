@@ -3,8 +3,8 @@ import ETU2035.framework.server.Argument;
 import ETU2035.framework.server.FileUpload;
 import ETU2035.framework.server.GetUrl;
 import ETU2035.framework.server.ModelView;
-import ETU2035.framework.server.RestApi;
 import ETU2035.framework.server.Singleton;
+import servlet.RestApi;
 
 @Singleton(url="scope")
 public class Departement {

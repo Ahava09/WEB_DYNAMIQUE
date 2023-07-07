@@ -31,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
+import etu1985.framework.RestApi;
 import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
@@ -384,6 +385,10 @@ public class FrontServlet extends HttpServlet {
                     out.println("iooooooooooooooooooooooooo");
                     String json = new Gson().toJson(((ModelView) ci).getData());
                     out.println(json + " etoooooooooooo");
+                }
+                if(methode.isAnnotationPresent(RestApi.class)){
+                    String json = new Gson().toJson(((ModelView) ci).getData());
+                    out.println(json+" 1");
                 }
                 loadView((ModelView) ci, request, response);
             }
