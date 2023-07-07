@@ -4,7 +4,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package etu1985.framework.servlet;
 
 import java.io.*;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -90,7 +90,7 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception ex) {
             throw new ServletException(ex);
         }
-            
+
     }
 
     public String[] reset(String Directory) {
@@ -248,6 +248,7 @@ public class FrontServlet extends HttpServlet {
         Mapping mapping = MappingUrls.get(key);
         return mapping;
     }
+
     private Object getObject(String key) {
         Object ob = Singleton.get(key);
         return ob;
@@ -269,7 +270,7 @@ public class FrontServlet extends HttpServlet {
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz = getClasse(mapping);
             Object ci = getObject(key);
-            if(ci == null){
+            if (ci == null) {
                 ci = clazz.getConstructor().newInstance();
             }
             Method[] methods = clazz.getDeclaredMethods();
@@ -378,11 +379,11 @@ public class FrontServlet extends HttpServlet {
                     ci = clazz.getDeclaredMethod(methode.getName(), parameterTypes).invoke(ci, paramValues);
                 }
                 ((ModelView) ci).SetIsJson(true);
-                out.println(((ModelView) ci).GetIsJson());
+                out.println("--------->" + ((ModelView) ci).GetIsJson());
                 if (((ModelView) ci).GetIsJson()) {
-                    out.println("aooo");
+                    out.println("iooooooooooooooooooooooooo");
                     String json = new Gson().toJson(((ModelView) ci).getData());
-                    out.println(json + " 2");
+                    out.println(json + " etoooooooooooo");
                 }
                 loadView((ModelView) ci, request, response);
             }
