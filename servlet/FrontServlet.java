@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.management.relation.RoleResult;
-
 import org.apache.commons.io.FilenameUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,6 +29,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
+import etu1985.framework.Auth;
+import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
 import java.lang.reflect.Array;
@@ -59,6 +58,7 @@ import jakarta.servlet.http.Part;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> MappingUrls = new HashMap<String, Mapping>();
+    HashMap<String, Object> Singleton = new HashMap<String, Object>();
 
     @SuppressWarnings("Unchecked")
     public void init(ServletConfig config) throws ServletException {
@@ -73,6 +73,10 @@ public class FrontServlet extends HttpServlet {
                 className = "etu1985.model." + className;
                 Class<?> clazz;
                 clazz = Class.forName(className);
+                if (clazz.isAnnotationPresent(IsSingleton.class)) {
+                    Object ci = clazz.getConstructor().newInstance();
+                    Singleton.put(clazz.getName(), ci);
+                }
                 Method[] methods = clazz.getDeclaredMethods();
                 for (Method method : methods) {
                     Annotation[] an = method.getAnnotations();
@@ -85,6 +89,7 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception ex) {
             throw new ServletException(ex);
         }
+            
     }
 
     public String[] reset(String Directory) {
@@ -110,12 +115,9 @@ public class FrontServlet extends HttpServlet {
             String directory = getServletContext().getRealPath("\\WEB-INF\\classes\\etu1985\\model");
 
             String[] classe = reset(directory);
-            out.println(classe.length);
             if (mapping != null) {
                 getDataNameView(url, request, response);
             }
-            out.println(MappingUrls.size());
-            out.close();
         } catch (Exception ex) {
             // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
             throw new ServletException(ex);
@@ -129,10 +131,10 @@ public class FrontServlet extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (Exception ex) {
-            ex.printStackTrace(out);
+            ex.printStackTrace();
             out.println(ex);
             throw new ServletException(ex);
-            // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
+            // throw new ServletException(ex);
         }
     }
 
@@ -144,7 +146,7 @@ public class FrontServlet extends HttpServlet {
             processRequest(request, response);
         } catch (Exception ex) {
             // Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace(out);
+            ex.printStackTrace();
             out.println(ex);
             throw new ServletException(ex);
         }
@@ -159,8 +161,6 @@ public class FrontServlet extends HttpServlet {
         Mapping mapping = getMappingUrls(key);
         ModelView m = null;
         if (mapping != null) {
-            // out.println(mapping.getMethod());
-            // out.println(mapping.getClassname());
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz;
             clazz = Class.forName(className);
@@ -182,6 +182,11 @@ public class FrontServlet extends HttpServlet {
                         Object value = entry.getValue();
                         request.setAttribute(key1, value);
                     }
+                    for (Map.Entry<String, Object> session : view.getSession().entrySet()) {
+                        String key = session.getKey();
+                        Object vl = session.getValue();
+                        request.getSession().setAttribute(key, vl);
+                    }
                 }
                 RequestDispatcher dispat = request.getRequestDispatcher(view.getNameview());
                 dispat.forward(request, response);
@@ -189,9 +194,23 @@ public class FrontServlet extends HttpServlet {
                 processRequest(request, response);
             }
         } catch (Exception e) {
-            e.printStackTrace(out);
+            e.printStackTrace();
             out.println(e);
             // e.printStackTrace(response.getWriter());
+        }
+    }
+
+    private void authentification(HttpServletRequest request,Method method) throws Exception, ServletException {
+        
+        if(method.isAnnotationPresent(Auth.class)){
+            HttpSession session = request.getSession();
+            Object value = session.getAttribute(this.getServletConfig().getInitParameter("sessionConnected"));
+            if ( value == null) throw new Exception("Non connectee");
+            String profil = (String)session.getAttribute(this.getServletConfig().getInitParameter("sessionProfil"));
+            if(method.getAnnotation(Auth.class).admin() != null){
+                String prl = method.getAnnotation(Auth.class).admin();
+                if(!profil.equals(prl) && profil == null) throw new Exception("Profil non reconnu");
+            }
         }
     }
 
@@ -232,11 +251,8 @@ public class FrontServlet extends HttpServlet {
     private Part hasFileInput(HttpServletRequest request, String name) throws IOException, ServletException {
         try {
             for (Part part : request.getParts()) {
-                // if (part != null && part.getContentType() != null &&
-                // part.getContentType().startsWith("multipart/form-data")) {
                 if (part.getName().equalsIgnoreCase(name))
-                    return part; // L'input est de type file
-                // }
+                    return part;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,6 +265,39 @@ public class FrontServlet extends HttpServlet {
         Mapping mapping = MappingUrls.get(key);
         return mapping;
     }
+
+    private Object getObject(String key) {
+        Object ob = Singleton.get(key);
+        return ob;
+    }
+    
+    private void resetModel(Object object) throws Exception {
+        Field[] fields = object.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            String setterMethodName = "set" + capitalize(fieldName);
+            Method setterMethod = object.getClass().getDeclaredMethod(setterMethodName, field.getType());
+    
+            if (field.getType().isPrimitive()) {
+                // Gérer les types primitifs
+                if (field.getType() == int.class) {
+                    setterMethod.invoke(object, 0);
+                } else if (field.getType() == double.class) {
+                    setterMethod.invoke(object, 0.0);
+                } else if (field.getType() == boolean.class) {
+                    setterMethod.invoke(object, false);
+                } else if (field.getType() == UploadFile.class) {
+                    setterMethod.invoke(object, (UploadFile)null);
+                } else {
+                    setterMethod.invoke(object, (String)null);
+                }
+            } else {
+                // Gérer les types non primitifs
+                setterMethod.invoke(object, (Object) null);
+            }
+        }
+    }
+    
 
     private Class getClasse(Mapping mapping) throws ClassNotFoundException {
         String className = "etu1985.model." + mapping.getClassname();
@@ -265,16 +314,21 @@ public class FrontServlet extends HttpServlet {
             Mapping mapping = getMappingUrls(key);
             String className = "etu1985.model." + mapping.getClassname();
             Class<?> clazz = getClasse(mapping);
-            Object ci = clazz.getConstructor().newInstance();
+            Object ci = getObject(key);
+            if(ci == null){
+                ci = clazz.getConstructor().newInstance();
+            }else{
+                resetModel(ci);
+            }
             Method[] methods = clazz.getDeclaredMethods();
             Method methode = null;
             for (Method method : methods) {
-                out.println(method.getName());
                 if (method.getName().equals(mapping.getMethod())) {
                     methode = method;
                     break;
                 }
             }
+            authentification(request,methode);
             // Obtention des types de paramètres de la méthode
             Class<?>[] parameterTypes = methode.getParameterTypes();
             // Obtenez les noms des paramètres en itérant sur les types de paramètres
@@ -297,7 +351,6 @@ public class FrontServlet extends HttpServlet {
                 }
             } catch (Exception e) {
                 e.printStackTrace(out);
-                e.printStackTrace();
             }
             if (paramCount == 0) {
 
@@ -307,7 +360,6 @@ public class FrontServlet extends HttpServlet {
                     String paramValue = request.getParameter(value);
                     String nameM = "set" + paramName;
                     for (Method method : methods) {
-                        out.println(method.getName());
 
                         if (method.getName().equals(nameM)) {
                             if (Arrays.toString(method.getParameterTypes()).contains("String")) {
@@ -336,14 +388,11 @@ public class FrontServlet extends HttpServlet {
                                                                       // de chaînes séparées par des "="
                     String pName = paramTokens[0]; // Le premier élément est le nom du paramètre
                     String pValue = paramTokens[1]; // Le deuxième élément est la valeur du paramètre
-                    out.println(pName + " ------------ " + pValue);
                     // Utiliser le nom et la valeur du paramètre ici
 
                     for (int i = 0; i < parameters.length; i++) {
                         String parameterName = parameters[i].getName();
                         Class<?> parameterType = parameterTypes[i];
-
-                        out.println(parameterName + " " + pName);
                         if (parameterName.equalsIgnoreCase(pName)) {
                             if (parameterType == String.class) {
                                 paramValues[i] = pValue;
@@ -360,8 +409,6 @@ public class FrontServlet extends HttpServlet {
                         }
                         if (i == parameters.length - 1) {
                             paramValues[i] = null;
-                            out.println("Param " + i + " name: " + parameterName);
-                            out.println("Param " + i + " type: " + parameterType.getSimpleName());
                         }
                     }
                 }
@@ -378,5 +425,5 @@ public class FrontServlet extends HttpServlet {
             e.printStackTrace(out);
         }
     }
-    
+
 }

@@ -1,0 +1,9 @@
+Salama daholo.Sprint 10 :
+- Asina attribut Hashmap<class,object> ny frontservlet
+- mamorona annotation hoe 'scope' ho ana class  dia ao no atao hoe singleton ilay class na tsia
+- ao amin'ny method 'init' dia atsofoka ao anatin'ilay Hashmap daholo izah class annoté 'scope' ary  'singleton' ny valeur ananany
+ rehefa eo amnin'ny traitement an'ilay 'request' : 
+- verifiena aloha hoe singleton ve ilay class atsoin'ilay lien 
+- raha singleton iny class iny no alaina anaovana traitement fa raha tsia dia mamorona instance vaovao
+- raha singleton dia averina par defaut daholo ny attributs rehetra 
+- matchena amin'ny parametres an'ilay Request amizay ny atteibuts an'ilay instance dia executena ilay method...
