@@ -13,6 +13,15 @@ public class ModelView {
     String nameview;
     HashMap<String,Object> data = new HashMap<String, Object>();
     HashMap<String,Object> session = new HashMap<String,Object>();
+    Boolean isJson = false;
+ 
+    public Boolean GetIsJson(){
+        return this.isJson;
+    }
+    public void SetIsJson(Boolean json){
+        this.isJson = json;
+    }
+
     public String getNameview() {
         return nameview;
     }
