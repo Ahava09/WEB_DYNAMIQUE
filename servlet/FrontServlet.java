@@ -31,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletConfig;
 import etu1985.framework.Mapping;
 import etu1985.framework.Url;
+import etu1985.framework.Session;
 import etu1985.framework.IsSingleton;
 import etu1985.framework.servlet.*;
 import jakarta.servlet.ServletConfig;
@@ -300,6 +301,9 @@ public class FrontServlet extends HttpServlet {
                             UploadFile uploadFile = new UploadFile(part);
                             m.invoke(ci, uploadFile);
                         }
+                    }else if(field.isAnnotationPresent(Session.class)){
+                        HashMap<String,Object> session = new HashMap<>(); 
+                        for (Map.Entry<String, Object> entry : request.ge.getData().entrySet()) {
                     }
                 }
             } catch (Exception e) {

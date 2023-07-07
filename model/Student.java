@@ -3,8 +3,10 @@ package etu1985.model;
 import etu1985.framework.IsSingleton;
 import etu1985.framework.Url;
 import etu1985.framework.Auth;
+import etu1985.framework.Session;
 import etu1985.framework.servlet.ModelView;
 import etu1985.framework.servlet.UploadFile;
+import java.util.HashMap;
 
 import java.sql.Date;
 
@@ -15,6 +17,8 @@ public class Student {
     private String name;
     private Date dateOfBirth;
     private UploadFile myfile;
+    @Session
+    private HashMap<String,Object> session;
 
     public int getId() {
         return id;
@@ -22,6 +26,14 @@ public class Student {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public HashMap<String, Object> getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, Object> session) {
+        this.session = session;
     }
 
     public String getFirstName() {
